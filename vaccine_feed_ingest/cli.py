@@ -101,6 +101,15 @@ def _enrich_apis_option() -> Callable:
     )
 
 
+def _geocodio_apikey_option() -> Callable:
+    return click.option(
+        "--geocodio-apikey",
+        "geocodio_apikey",
+        type=str,
+        default=lambda: os.environ.get("GEOCODIO_APIKEY", ""),
+    )
+
+
 def _placekey_apikey_option() -> Callable:
     return click.option(
         "--placekey-apikey",
@@ -163,6 +172,15 @@ def _rematch_option() -> Callable:
         "enable_rematch",
         type=bool,
         default=lambda: os.environ.get("ENABLE_REMATCH", "false").lower() == "true",
+    )
+
+
+def _reimport_option() -> Callable:
+    return click.option(
+        "--reimport/--no-reimport",
+        "enable_reimport",
+        type=bool,
+        default=lambda: os.environ.get("ENABLE_REIMPORT", "false").lower() == "true",
     )
 
 
@@ -397,6 +415,7 @@ def all_stages(
 @_output_dir_option()
 @_api_cache_option()
 @_enrich_apis_option()
+@_geocodio_apikey_option()
 @_placekey_apikey_option()
 @_dry_run_option()
 def enrich(
@@ -406,6 +425,7 @@ def enrich(
     output_dir: pathlib.Path,
     enable_apicache: bool,
     enrich_apis: Optional[Collection[str]],
+    geocodio_apikey: Optional[str],
     placekey_apikey: Optional[str],
     dry_run: bool,
 ) -> None:
@@ -420,6 +440,7 @@ def enrich(
             timestamp,
             enable_apicache=enable_apicache,
             enrich_apis=enrich_apis,
+            geocodio_apikey=geocodio_apikey,
             placekey_apikey=placekey_apikey,
             dry_run=dry_run,
         )
@@ -436,6 +457,7 @@ def enrich(
 @_match_option()
 @_create_option()
 @_rematch_option()
+@_reimport_option()
 @_match_ids_option()
 @_create_ids_option()
 @_candidate_distance_option()
@@ -451,6 +473,7 @@ def load_to_vial(
     enable_match: bool,
     enable_create: bool,
     enable_rematch: bool,
+    enable_reimport: bool,
     match_ids: Optional[Dict[str, str]],
     create_ids: Optional[Collection[str]],
     candidate_distance: float,
@@ -475,6 +498,7 @@ def load_to_vial(
         enable_match=enable_match,
         enable_create=enable_create,
         enable_rematch=enable_rematch,
+        enable_reimport=enable_reimport,
         match_ids=match_ids,
         create_ids=create_ids,
         candidate_distance=candidate_distance,
@@ -491,12 +515,14 @@ def load_to_vial(
 @_stages_option()
 @_api_cache_option()
 @_enrich_apis_option()
+@_geocodio_apikey_option()
 @_placekey_apikey_option()
 @_vial_server_option()
 @_vial_apikey_option()
 @_match_option()
 @_create_option()
 @_rematch_option()
+@_reimport_option()
 @_match_ids_option()
 @_create_ids_option()
 @_candidate_distance_option()
@@ -511,12 +537,14 @@ def pipeline(
     stages: Collection[common.PipelineStage],
     enable_apicache: bool,
     enrich_apis: Optional[Collection[str]],
+    geocodio_apikey: Optional[str],
     placekey_apikey: Optional[str],
     vial_server: Optional[str],
     vial_apikey: Optional[str],
     enable_match: bool,
     enable_create: bool,
     enable_rematch: bool,
+    enable_reimport: bool,
     match_ids: Optional[Dict[str, str]],
     create_ids: Optional[Collection[str]],
     candidate_distance: float,
@@ -570,6 +598,7 @@ def pipeline(
                 timestamp,
                 enable_apicache=enable_apicache,
                 enrich_apis=enrich_apis,
+                geocodio_apikey=geocodio_apikey,
                 placekey_apikey=placekey_apikey,
             )
 
@@ -594,6 +623,7 @@ def pipeline(
             enable_match=enable_match,
             enable_create=enable_create,
             enable_rematch=enable_rematch,
+            enable_reimport=enable_reimport,
             match_ids=match_ids,
             create_ids=create_ids,
             candidate_distance=candidate_distance,
